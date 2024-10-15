@@ -9,10 +9,20 @@ const Details = () => {
   let [trailer, setTrailers] = useState(null);
 
   async function getTrailers(id) {
-    fetch(`http://api.themoviedb.org/3/movie/${id}/videos?api_key=3ccc226ae18a08e9ac2dfa31c2e0de39`)
-      .then(res => res.json())
-      .then(x => setTrailers(x.results[0]?.key));
+    try {
+      const response = await fetch(`http://api.themoviedb.org/3/movie/${id}/videos?api_key=3ccc226ae18a08e9ac2dfa31c2e0de39`);
+      const data = await response.json();
+
+      if (data.results && data.results.length > 0) {
+        setTrailers(data.results[0].key);
+      } else {
+        console.log("No trailers available");
+      }
+    } catch (error) {
+      console.error("Error fetching trailers:", error);
+    }
   }
+
 
   return (
     <div className="details-container">
@@ -29,7 +39,11 @@ const Details = () => {
           <h4 >{specific.title}</h4>
           <p>{specific.overview}</p>
           <h2>Rating: {specific.vote_average}</h2>
-          <button className="playtrailer" onClick={() => getTrailers(specific.id)}>Play Trailer</button>
+          <button className="playtrailer" onClick={() => {
+            getTrailers(specific.id);
+            console.log('Trailer:', trailer);
+          }}>Play Trailer</button>
+
         </div>
         {trailer && (
           <div className="trailer">
